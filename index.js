@@ -2,7 +2,7 @@ const express = require('express');
 const socket = require('socket.io');
 const app = express();
 const dotenv = require('dotenv');
-console.log('env: ', process.env.NODE_ENV);
+
 if (process.env.NODE_ENV==='test') {
   dotenv.config();
 }
@@ -20,5 +20,15 @@ const server = app.listen(PORT, () => {
 const io = socket(server);
 
 io.on('connection', (socket) => {
-  console.log('Client connected id is: ', socket.id);
+  console.log('New client connected, id is: ', socket.id);
+  // listen for event(chat event) from client.
+  socket.on('chat', (data) => {
+    // all your business logic goes here.
+    // emit chat event to all the connected clients.
+    io.sockets.emit('chat', data);
+  });
+
+  socket.on('typing', (data) => {
+    socket.broadcast.emit('typing', data);
+  })
 });
